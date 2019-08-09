@@ -1,0 +1,4 @@
+127.0.0.1 localhost localhost.localdomain localhost4 localhost4.localdomain4
+10.211.55.12 master
+10.211.55.13 node01
+10.211.55.14 node02

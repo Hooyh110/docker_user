@@ -1,0 +1,35 @@
+server {
+        listen       80;
+        server_name  idata.idengyun.com;
+                #ssl on;
+                #ssl_certificate   sslkey/wap/214359562210130.pem;
+                #ssl_certificate_key  sslkey/wap/214359562210130.key;
+                #ssl_session_timeout 5m;
+                #ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+                #ssl_ciphers AESGCM:ALL:!DH:!EXPORT:!RC4:+HIGH:!MEDIUM:!LOW:!aNULL:!eNULL;
+                #ssl_prefer_server_ciphers on;
+                #root /data/idata_web;
+                #include expires.conf;
+        location = / {
+        	include proxy.conf;
+       		proxy_pass http://10.12.0.11:28080/idata-user-web;
+        }
+	location / {
+             include proxy.conf;
+             proxy_pass http://10.12.0.11:28080;
+             add_header 'Access-Control-Allow-Origin' '*';
+             add_header 'Access-Control-Allow-Credentials' 'true';
+        }
+        location ~ ^/(images/|assets/|img/|javascript/|js/|css/|stylesheets/|flash/|media/|static/|robots.txt|humans.txt|favicon.ico) {
+          root /data/idata_web;
+          access_log off;
+          expires max;
+        }
+        access_log  /var/log/nginx/logs/idata.idengyun.com_access.log combined;
+        error_log  /var/log/nginx/logs/idata.idengyun.com_error.log;
+}
+#server {
+#       listen 80;
+#       server_name wap.idengyun.com;
+#       rewrite ^(.*) https://wap.idengyun.com$1 permanent;
+#}

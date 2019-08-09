@@ -1,0 +1,5 @@
+[master]
+10.11.0.6 ansible_ssh_user=ansible ansible_ssh_port=22
+[workers]
+10.11.0.11 ansible_ssh_user=ansible ansible_ssh_port=22
+10.11.0.19 ansible_ssh_user=ansible ansible_ssh_port=22

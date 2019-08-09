@@ -1,0 +1,185 @@
+
+# eureka服务注册中心
+eureka-service:
+  image: 'registry-vpc.cn-beijing.aliyuncs.com/bjczht/autosaas-eureka-service:fat'
+  restart: always
+  ports:
+    - '10001/tcp'
+  labels:
+    aliyun.scale: '1'
+    aliyun.routing.port_10001: eureka-service.local
+  volumes:
+    - '/etc/localtime:/etc/localtime:ro'
+  environment:
+    - ENV=fat
+    # - 'JASYPT_ENCRYPTOR_PASSWORD=b77de4d9-e8ac-11e8-b6d5-00163e0a2415'
+
+# puppeteer截屏服务
+screenshot-service:
+  image: 'registry-vpc.cn-beijing.aliyuncs.com/bjczht/puppeteer-screenshot'
+  restart: always
+  ports:
+    - '8555/tcp'
+  labels:
+    aliyun.scale: '2'
+    aliyun.rolling_updates: 'true'
+    aliyun.rolling_updates.parallelism: '1'
+    aliyun.probe.url: http://container:8555/
+    aliyun.probe.timeout_seconds: '30'
+    aliyun.probe.initial_delay_seconds: '10'
+    aliyun.routing.port_8555: screenshot-service.local
+  volumes:
+    - '/etc/localtime:/etc/localtime:ro'
+  external_links:
+    - "autosaas-service.local"
+
+# gateway网关服务
+gateway-service:
+  image: 'registry-vpc.cn-beijing.aliyuncs.com/bjczht/autosaas-gateway-service:fat'
+  restart: always
+  ports:
+    - '11001/tcp'
+  labels:
+    aliyun.scale: '2'
+    aliyun.rolling_updates: 'true'
+    aliyun.rolling_updates.parallelism: '1'
+    aliyun.probe.url: http://container:11001/actuator/health
+    aliyun.probe.timeout_seconds: '30'
+    aliyun.probe.initial_delay_seconds: '30'
+    aliyun.routing.port_11001: gateway-service.local
+  volumes:
+    - '/etc/localtime:/etc/localtime:ro'
+  environment:
+    - ENV=fat
+    # - 'JASYPT_ENCRYPTOR_PASSWORD=b77de4d9-e8ac-11e8-b6d5-00163e0a2415'
+  external_links:
+    - "eureka-service.local"
+
+# base基础服务
+base-service:
+  image: 'registry-vpc.cn-beijing.aliyuncs.com/bjczht/autosaas-base-service:fat'
+  restart: always
+  ports:
+    - '13001/tcp'
+  labels:
+    aliyun.scale: '2'
+    aliyun.rolling_updates: 'true'
+    aliyun.rolling_updates.parallelism: '1'
+    aliyun.probe.url: http://container:13001/actuator/health
+    aliyun.probe.timeout_seconds: '30'
+    aliyun.probe.initial_delay_seconds: '30'
+    aliyun.routing.port_13001: base-service.local
+  volumes:
+    - '/etc/localtime:/etc/localtime:ro'
+  environment:
+    - ENV=fat
+    # - 'JASYPT_ENCRYPTOR_PASSWORD=b77de4d9-e8ac-11e8-b6d5-00163e0a2415'
+    # - 'JAVA_OPTS= -DJASYPT_ENCRYPTOR_PASSWORD=b77de4d9-e8ac-11e8-b6d5-00163e0a2415'
+    # - JVM_OPTS=-Xmx1024m -Xms1024m -XX:MaxPermSize=128m -server
+  external_links:
+    - "eureka-service.local"
+    - "autosaas-service.local"
+    - "screenshot-service.local"
+
+# autosaas-provider服务
+autosaas-service:
+  image: 'registry-vpc.cn-beijing.aliyuncs.com/bjczht/autosaas-autosaas-service:fat'
+  restart: always
+  ports:
+    - '12001/tcp'
+  labels:
+    aliyun.scale: '2'
+    aliyun.rolling_updates: 'true'
+    aliyun.rolling_updates.parallelism: '1'
+    aliyun.probe.url: http://container:12001/actuator/health
+    aliyun.probe.timeout_seconds: '30'
+    aliyun.probe.initial_delay_seconds: '30'
+    aliyun.log_store_autosaas: stdout # 采集stdout日志到阿里云日志库中
+    aliyun.log_ttl_autosaas: 1 # 设置日志库日志数据保存30天
+    aliyun.routing.port_12001: autosaas-service.local
+
+  volumes:
+    - '/etc/localtime:/etc/localtime:ro'
+  environment:
+    - ENV=fat
+    # - 'JASYPT_ENCRYPTOR_PASSWORD=b77de4d9-e8ac-11e8-b6d5-00163e0a2415'
+    # - JVM_OPTS=-Xmx2048m -Xms2048m -XX:MaxPermSize=128m -server -Djava.io.tmpdir=/data/tmp
+    - JVM_OPTS=-Xmx2048m -Xms2048m -XX:MaxPermSize=128m -server
+  external_links:
+    - "eureka-service.local"
+
+# 销售雷达-webapp
+airadar-webapp:
+  image: 'registry-vpc.cn-beijing.aliyuncs.com/bjczht/autosaas-webapp-airadar:fat'
+  restart: always
+  ports:
+    - '80/tcp'
+  labels:
+    aliyun.scale: '2'
+    aliyun.rolling_updates: 'true'
+    aliyun.rolling_updates.parallelism: '1'
+    aliyun.probe.url: http://container/
+    aliyun.probe.timeout_seconds: '30'
+    aliyun.probe.initial_delay_seconds: '10'
+    aliyun.routing.port_80: airadar-webapp.local
+  volumes:
+    - '/etc/localtime:/etc/localtime:ro'
+  external_links:
+    - "eureka-service.local"
+
+# 管理雷达-webapp
+bossradar-webapp:
+  image: 'registry-vpc.cn-beijing.aliyuncs.com/bjczht/autosaas-webapp-bossradar:fat'
+  restart: always
+  ports:
+    - '80/tcp'
+  labels:
+    aliyun.scale: '2'
+    aliyun.rolling_updates: 'true'
+    aliyun.rolling_updates.parallelism: '1'
+    aliyun.probe.url: http://container/
+    aliyun.probe.timeout_seconds: '30'
+    aliyun.probe.initial_delay_seconds: '10'
+    aliyun.routing.port_80: bossradar-webapp.local
+  volumes:
+    - '/etc/localtime:/etc/localtime:ro'
+  external_links:
+    - "eureka-service.local"
+
+# 猫抓OP运营后台
+mzop-webapp:
+  image: 'registry-vpc.cn-beijing.aliyuncs.com/bjczht/autosaas-webapp-mzop:fat'
+  restart: always
+  ports:
+    - '80/tcp'
+  labels:
+    aliyun.scale: '2'
+    aliyun.rolling_updates: 'true'
+    aliyun.rolling_updates.parallelism: '1'
+    aliyun.probe.url: http://container/
+    aliyun.probe.timeout_seconds: '30'
+    aliyun.probe.initial_delay_seconds: '10'
+    aliyun.routing.port_80: mzop-webapp.local
+  volumes:
+    - '/etc/localtime:/etc/localtime:ro'
+  external_links:
+    - "eureka-service.local"
+
+# 企业管理PC
+scrmpc-webapp:
+  image: 'registry-vpc.cn-beijing.aliyuncs.com/bjczht/autosaas-webapp-scrm-bm:fat'
+  restart: always
+  ports:
+    - '80/tcp'
+  labels:
+    aliyun.scale: '2'
+    aliyun.rolling_updates: 'true'
+    aliyun.rolling_updates.parallelism: '1'
+    aliyun.probe.url: http://container/
+    aliyun.probe.timeout_seconds: '30'
+    aliyun.probe.initial_delay_seconds: '10'
+    aliyun.routing.port_80: scrmpc-webapp.local
+  volumes:
+    - '/etc/localtime:/etc/localtime:ro'
+  external_links:
+    - "eureka-service.local"

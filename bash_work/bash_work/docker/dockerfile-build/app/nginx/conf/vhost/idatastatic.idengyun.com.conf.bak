@@ -1,0 +1,20 @@
+server {
+        listen       8081;
+        server_name  idatastatic.idengyun.com;
+#        index index.html;
+#        root /data/idata_web;
+#        location ~ \.(jpg|png|jpeg|mp4)$ {
+#        root /data/idata_web;
+#        include expires.conf;
+#        }
+#        location ~ ^/(images/|assets/|img/|javascript/|js/|css/|stylesheets/|flash/|media/|static/|robots.txt|humans.txt|favicon.ico) {
+          root /data/idata_web;
+          access_log off;
+          expires max;
+	  include expires.conf;
+#        }
+        access_log /dev/null;
+        error_log off;
+#access_log  /var/applog/nginx/static.idengyun.com.log combined;
+#error_log  /var/applog/nginx/static.idengyun.com_error.log;
+}

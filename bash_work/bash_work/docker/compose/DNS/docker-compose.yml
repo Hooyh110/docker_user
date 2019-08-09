@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "19080:80/tcp"
+    environment:
+      TZ: 'Asia/Shanghai'
+      ServerIP: '0.0.0.0'
+    dns:
+       - 127.0.0.1
+       - 114.114.114.114
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped

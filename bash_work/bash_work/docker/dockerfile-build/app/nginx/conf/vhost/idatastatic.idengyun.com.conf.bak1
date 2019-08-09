@@ -1,0 +1,12 @@
+server {
+        listen       8888;
+        server_name  idatastatic.idengyun.com;
+        index index.html;
+        root /data/idata_web;
+        include expires.conf;
+
+        access_log /dev/null;
+        error_log off;
+#access_log  /var/applog/nginx/static.idengyun.com.log combined;
+#error_log  /var/applog/nginx/static.idengyun.com_error.log;
+}

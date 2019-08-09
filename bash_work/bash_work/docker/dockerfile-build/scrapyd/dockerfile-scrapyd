@@ -1,0 +1,16 @@
+FROM scrapyd-python3.7
+MAINTAINER hoo
+ENV REFRESHED_AT date
+
+#设置环境变量
+#ENV JAVA_HOME=/usr/local/jdk
+#ENV JRE_HOME=$JAVA_HOME/jre
+#ENV CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib:$CLASSPATH
+#ENV PATH=/sbin:$JAVA_HOME/bin:$PATH
+ADD ./default_scrapyd.conf /usr/local/lib/python3.6/dist-packages/scrapyd/
+RUN /bin/bash -c 'pip3 install rsa'
+RUN /bin/bash -c 'sed -i "s#6800#46800#g" /usr/local/lib/python3.6/dist-packages/scrapyd/default_scrapyd.conf'
+#公开端口
+EXPOSE 46800
+#设置启动命令
+ENTRYPOINT ["scrapyd"]

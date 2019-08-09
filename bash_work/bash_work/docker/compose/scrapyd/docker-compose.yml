@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  scrapy:
+    container_name: scrapy
+    image: registry.cn-beijing.aliyuncs.com/hooyh_public/scrapyd-python3.7:v2
+    ports:
+      - "6800:6800/tcp"
+    environment:
+      TZ: 'Asia/Shanghai'
+    dns:
+       - 114.114.114.114
+    restart: unless-stopped

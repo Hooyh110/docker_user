@@ -1,0 +1,42 @@
+
+#xiongmaoyouche
+server {
+        listen 80;
+        server_name h5.xiongmaocar.com;
+#	location / {
+#		proxy_set_header Host "h5.maozhua4s.com";
+#		proxy_set_header User-Agent $http_user_agent;
+#		proxy_set_header Connection "";
+#		proxy_set_header Accept-Encoding "";
+#		proxy_pass http://h5.maozhua4s.com/;
+#	}
+	
+        location  /mzh5/ {
+                index index.html index.htm;
+                alias /data/wwwroot/h5.maozhua4s.com/mzh5/;
+                try_files $uri $uri/ /mzh5/index.html;
+                 if ($request_filename ~ .*\.(htm|html)$)
+                {
+                add_header Cache-Control "no-cache, no-store";
+                }
+        }
+       location /mzh5/api/ {
+                proxy_pass http://autosaas-gateway-pro.xmcar.com:11001/h5api/;
+                proxy_redirect http://autosaas-gateway-pro.xmcar.com:11001/h5api/ http://h5-app.xiongmaocar.com/mzh5/api/;
+	}
+#	location / {
+#	       rewrite ^/mzh5/(.*)$ /mzh5/$1 last;
+#	       break;
+#        }
+#	location /mzh5 {
+#		proxy_pass https://h5.maozhua4s.com/mzh5;
+#	}
+##	
+#	location /css {
+#                proxy_pass https://h5.maozhua4s.com/mzh5/css;
+#        }
+#	location /js {
+#                proxy_pass https://h5.maozhua4s.com/mzh5/js;
+#        }
+	access_log  /data/nginx/access/h5-app.xiongmaocar.com.log  access;
+}

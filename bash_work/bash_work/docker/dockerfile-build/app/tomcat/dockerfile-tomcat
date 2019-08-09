@@ -1,0 +1,42 @@
+FROM centos
+MAINTAINER hoo
+ENV REFRESHED_AT 2018-11-19
+
+# put nginx-1.12.0 into /usr/local/nginx and unpack nginx
+ADD nginx-1.12.0 /usr/local/nginx
+
+# running required command
+RUN yum install -y gcc gcc-c++ glibc make autoconf openssl openssl-devel 
+RUN yum install -y libxslt-devel -y gd gd-devel GeoIP GeoIP-devel pcre pcre-devel
+RUN useradd -M -s /sbin/nologin nginx
+
+# change dir to /usr/local/nginx
+WORKDIR /usr/local/nginx
+
+# execute command to compile nginx
+RUN ./configure --user=nginx --group=nginx --prefix=/usr/local/nginx --with-file-aio --with-http_ssl_module --with-http_realip_module --with-http_addition_module --with-http_xslt_module --with-http_image_filter_module --with-http_geoip_module --with-http_sub_module --with-http_dav_module --with-http_flv_module --with-http_mp4_module --with-http_gunzip_module --with-http_gzip_static_module --with-http_auth_request_module --with-http_random_index_module --with-http_secure_link_module --with-http_degradation_module --with-http_stub_status_module && make && make install
+
+EXPOSE 8888
+ENTRYPOINT ["/usr/local/nginx/sbin/nginx","run"]
+#切换镜像目录，进入/usr/local目录
+WORKDIR /usr/local
+#在/usr/local/下创建jdk目录,用来存放jdk文件
+RUN mkdir jdk
+#在/usr/local/下创建tomcat目录，用来存放tomcat
+RUN mkdir tomcat
+
+#将宿主机的jdk目录下的文件拷至镜像的/usr/jdk目录下
+ADD jdk1.8.0_101 /usr/local/jdk/
+#将宿主机的tomcat目录下的文件拷至镜像的/usr/tomcat目录下
+ADD apache-tomcat-9.0.10 /usr/local/tomcat/
+
+#设置环境变量
+ENV JAVA_HOME=/usr/local/jdk
+ENV JRE_HOME=$JAVA_HOME/jre
+ENV CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib:$CLASSPATH
+ENV PATH=/sbin:$JAVA_HOME/bin:$PATH
+
+#公开端口
+EXPOSE 8080
+#设置启动命令
+ENTRYPOINT ["/usr/local/tomcat/bin/startup.sh","run"]

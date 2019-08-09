@@ -1,0 +1,33 @@
+# base image
+FROM centos:7.2.1511
+
+# MAINTAINER
+MAINTAINER yuhao_hu@live.cn
+
+# put nginx-1.12.2.tar.gz into /usr/local/src and unpack nginx
+ADD nginx-1.12.2.tar.gz /usr/local/src
+
+# running required command
+RUN rpm --rebuilddb && yum install -y gcc gcc-c++ glibc make autoconf openssl openssl-devel 
+RUN rpm --rebuilddb && yum install -y libxslt-devel gd gd-devel GeoIP GeoIP-devel pcre pcre-devel
+RUN useradd -M -s /sbin/nologin nginx
+RUN useradd -M -s /sbin/nologin wwww
+
+# change dir to /usr/local/src/nginx-1.12.2
+WORKDIR /usr/local/src/nginx-1.12.2
+
+# execute command to compile nginx
+RUN ./configure --user=root --group=root --prefix=/usr/local/nginx --with-stream --with-stream_ssl_module --with-http_stub_status_module --with-file-aio --with-http_ssl_module --with-http_realip_module --with-http_addition_module --with-http_xslt_module --with-http_image_filter_module --with-http_geoip_module --with-http_sub_module --with-http_dav_module --with-http_flv_module --with-http_mp4_module --with-http_gunzip_module --with-http_gzip_static_module --with-http_auth_request_module --with-http_random_index_module --with-http_secure_link_module --with-http_degradation_module --with-http_stub_status_module && make && make install
+RUN rm -rf /usr/local/nginx/conf
+ADD conf.tar.gz  /usr/local/nginx/
+RUN ls /usr/local/nginx/conf
+#CMD unzip /usr/local/src/conf.zip -d /usr/local/nginx/
+#RUN mv /usr/local/src/conf /usr/local/nginx/
+RUN mkdir -p /var/applog/nginx/proxy/ /var/run/nginx/ /data/nginx/{proxy,access,error
+RUN echo "daemon off;">>/usr/local/nginx/conf/nginx.conf
+#RUN chown -R nginx /usr/local/nginx
+ENV PATH /usr/local/nginx/sbin:$PATH
+EXPOSE 8090
+EXPOSE 80
+WORKDIR /usr/local/nginx/conf
+CMD ["nginx"]
