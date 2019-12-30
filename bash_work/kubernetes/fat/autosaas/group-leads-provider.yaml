@@ -1,0 +1,71 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: group-leads-provider
+  labels:
+    app: group-leads-provider
+  namespace: autosaas
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: group-leads-provider
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: group-leads-provider
+    spec:
+      containers:
+        - env:
+            - name: ENV
+              value: dev
+          image: >-
+            registry.cn-beijing.aliyuncs.com/bjczht/group-leads-provider:2.3.0-190716.0119-94e3b8d1
+          imagePullPolicy: Always
+          name: group-leads-provider
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+             - mountPath: /etc/hosts
+               name: volume-hosts
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+        - name: docker-registry
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - hostPath:
+            path: /etc/hosts
+            type: ''
+          name: volume-hosts 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+  labels:
+    app: group-leads-provider
+  name: group-leads-provider
+  namespace: autosaas
+  resourceVersion: '1910'
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: zxzhdn
+      nodePort: 
+      port: 23001
+      protocol: TCP
+      targetPort: 23001
+  selector:
+    app: group-leads-provider
+  sessionAffinity: None
+  type: NodePort

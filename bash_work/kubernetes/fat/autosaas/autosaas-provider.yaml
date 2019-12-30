@@ -1,0 +1,72 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: autosaas-provider
+  labels:
+    app: autosaas-provider
+  namespace: autosaas
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: autosaas-provider
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: autosaas-provider
+    spec:
+      containers:
+        - env:
+            - name: ENV
+              value: dev
+          image: >-
+            registry.cn-beijing.aliyuncs.com/bjczht/autosaas-provider:2.9.0-191030.0941-8286153e
+          imagePullPolicy: Always
+          name: autosaas-provider
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+             - mountPath: /etc/hosts
+               name: volume-hosts
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+        - name: docker-registry
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - hostPath:
+            path: /etc/hosts
+            type: ''
+          name: volume-hosts 
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+  labels:
+    app: autosaas-provider
+  name: autosaas-provider
+  namespace: autosaas
+  resourceVersion: '1970'
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: 6phcdr
+      nodePort: 32395
+      port: 12001
+      protocol: TCP
+      targetPort: 12001
+  selector:
+    app: autosaas-provider
+  sessionAffinity: None
+  type: NodePort

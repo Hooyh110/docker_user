@@ -1,0 +1,49 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: crawler
+spec:
+  replicas: 2 # tells deployment to run 2 pods matching the template
+  template: # create pods using pod definition in this template
+    metadata:
+      # unlike pod-nginx.yaml, the name is not included in the meta data as a unique name is
+      # generated from the deployment name
+      labels:
+        app: crawler
+    spec:
+      imagePullSecrets:
+      - name: bjczht
+      containers:
+      - name: crawler
+        image: registry.cn-beijing.aliyuncs.com/bjczht/scrapyd-python3.7:v4
+        ports:
+        - containerPort: 46800
+        volumeMounts:
+          - mountPath: /etc/localtime
+            name: test-time
+            readOnly: true
+          - mountPath: /test-data
+            name: test-data
+      volumes:
+        - hostPath:
+            path: /etc/localtime
+            type: File
+          name: test-time
+        - hostPath:
+            path: /test-data
+            type: Directory
+          name: test-data
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: crawler-o
+spec:
+  type: NodePort
+  ports:
+  - port: 46800
+    targetPort: 46800
+    nodePort: 31081
+  selector:
+    app: crawler
+

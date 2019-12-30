@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+#########################################################################
+# File Name: all-service.sh
+# Author: huyuhao
+# weixin:huyuhao1910
+# Created Time: Fri 24 Aug 2018 06:47:24 PM CST
+#########################################################################
+
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+export PATH
+KUBE_DIR=$(cd $(dirname "$0") && pwd)
+KUBECTL_1=maozhua-web
+KUBECTL_2=innersystem
+KUBECTL_3_app=app
+KUBECTL_3_hxb=hxb
+KUBECTL_3_public=public
+KUBECTL_3_web=xiongmaocar-web
+KUBECTL_4_autosaas=autosaas
+KUBECTL_4_crm=crm
+KUBECTL_4_crawler=crawler
+KUBECTL_4_pub=public
+KUBECTL_5_autosaas=autosaas
+KUBECTL_5_crm=crm
+KUBECTL_5_crawler=crawler
+KUBECTL_5_pub=public
+KUBECTL_5_IT=itservice
+parameter=$2
+
+cur_dir=$(cd $(dirname "$0") && pwd)
+
+
+
+function help(){
+  echo -e "\033[5m\033[31m Function: 1 2 3 4 5 \033[0m "
+  echo -e "\033[5m\033[32m Usage: $0 {1(maozhua-web)、2(innersystem) 3(xiongmaoyouche)、4(autosaas-pro)、5(autosaas-fat)} \033[0m"
+  echo -e "\033[5m\033[33m Usage: $0 "'$1'" "'$2'"  {app(xiongmaoyouche-app)、hxb(xiongmaoyouche-hxb)、public(xiongmaoyouche-public)、web(xiongmaoyouche-xiongmaocar-web)、
+autossaas(autosaas-pro)、crm(autosaas-pro)、crawler(autosaas-pro)、pub(autosaas-pro)、
+fat-auto(autosaas-fat)、fat-crm(autosaas-fat)、fat-cra(autosaas-fat)、fat-pub(autosaas-fat)、IT(itservice)} \033[0m"
+}
+#maozhua-web
+function MAOZHUA-WEB(){
+  ${KUBE_DIR}/kube.sh 1;
+  kubectl get pods -n ${KUBECTL_1} -o wide;
+}
+#innersystem
+function INNERSYSTEM(){
+        ${KUBE_DIR}/kube.sh 2;
+        kubectl get pods -n ${KUBECTL_2} -o wide;
+}
+#xiongmaoyouche
+function XIONGMAOYOUCHE(){
+        ${KUBE_DIR}/kube.sh 3;
+        if [[ ${parameter} = app ]]
+        then
+            kubectl get pods -n ${KUBECTL_3_app} -o wide;
+        elif  [[ ${parameter} = hxb ]]
+          then
+            kubectl get pods -n ${KUBECTL_3_hxb} -o wide;
+        elif  [[ ${parameter} = public ]]
+          then
+            kubectl get pods -n ${KUBECTL_3_public} -o wide;
+        elif  [[ ${parameter} = web ]]
+          then
+            kubectl get pods -n ${KUBECTL_3_web} -o wide;
+        else
+            echo "请输入对应参数"
+        fi
+}
+#autosaas-pro
+function AUTOSAAS-PRO(){
+        ${KUBE_DIR}/kube.sh 4;
+        if [[ ${parameter} = autosaas ]]
+        then
+            kubectl get pods -n ${KUBECTL_4_autosaas} -o wide;
+        elif  [[ ${parameter} = crawler ]]
+          then
+            kubectl get pods -n ${KUBECTL_4_crawler} -o wide;
+        elif  [[ ${parameter} = pub ]]
+          then
+            kubectl get pods -n ${KUBECTL_4_pub} -o wide;
+        elif  [[ ${parameter} = crm ]]
+          then
+            kubectl get pods -n ${KUBECTL_4_crm} -o wide;
+        else
+            echo "请输入对应参数"
+        fi
+
+}
+#autosaas-fat
+function AUTOSAAS-FAT(){
+        ${KUBE_DIR}/kube.sh 5;
+        if [[ ${parameter} = fat-auto ]]
+        then
+            kubectl get pods -n ${KUBECTL_5_autosaas} -o wide;
+        elif  [[ ${parameter} = fat-cra ]]
+          then
+            kubectl get pods -n ${KUBECTL_5_crawler} -o wide;
+        elif  [[ ${parameter} = fat-pub ]]
+          then
+            kubectl get pods -n ${KUBECTL_5_pub} -o wide;
+        elif  [[ ${parameter} = fat-crm ]]
+          then
+            kubectl get pods -n ${KUBECTL_5_crm} -o wide;
+        elif [[ ${parameter} = fat-IT ]]
+          then
+            kubectl get pods -n ${KUBECTL_5_IT} -o wide;
+        else
+            echo "请输入对应参数"
+        fi
+}
+case "$1" in
+  1)
+    MAOZHUA-WEB
+  ;;
+  2)
+    INNERSYSTEM
+  ;;
+  3)
+    XIONGMAOYOUCHE
+  ;;
+  4)
+    AUTOSAAS-PRO
+  ;;
+  5)
+    AUTOSAAS-FAT
+  ;;
+  *)
+    help
+    exit 1
+  ;;
+esac

@@ -1,0 +1,77 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: autosaas-eureka
+  labels:
+    app: autosaas-eureka
+  namespace: public
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: autosaas-eureka
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: autosaas-eureka
+    spec:
+      restartPolicy: Always
+      dnsPolicy: ClusterFirst
+      containers:
+        - env:
+            - name: ENV
+              value: dev
+          image: 'registry.cn-beijing.aliyuncs.com/bjczht/autosaas-eureka:2.2.0-190605.1609-c6fb8725'
+          imagePullPolicy: IfNotPresent
+          name: autosaas-eureka
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+             - mountPath: /etc/hosts
+               name: volume-hosts
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+        - name: docker-registry
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - hostPath:
+            path: /etc/hosts
+            type: ''
+          name: volume-hosts
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    k8s.eip.work/workload: autosaas-eureka
+  creationTimestamp: '2019-11-01T03:27:46Z'
+  labels:
+    app: autosaas-eureka
+  name: autosaas-eureka
+  namespace: public
+  resourceVersion: '96715'
+  selfLink: /api/v1/namespaces/public/services/autosaas-eureka
+  uid: 8bcbc85f-0964-4f7f-aa12-00bc0f395f63
+spec:
+  clusterIP: 
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: cammzk
+      nodePort: 30412
+      port: 10001
+      protocol: TCP
+      targetPort: 10001
+  selector:
+    app: autosaas-eureka
+  sessionAffinity: None
+  type: NodePort
